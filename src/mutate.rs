@@ -144,8 +144,7 @@ impl Client {
     }
 
     async fn compose_expr(&self, collection_name: &str, options: &DeleteOptions) -> Result<String> {
-        let mut expr = String::new();
-        match options.filter.len() {
+        let expr = match options.filter.len() {
             0 => {
                 let collection = self.collection_cache.get(collection_name).await?;
                 let pk = collection.fields.iter().find(|f| f.is_primary_key).unwrap();
@@ -161,7 +160,6 @@ impl Client {
                             }
                             expr.push_str(format!("{}", v).as_str());
                         }
-                        expr
                     }
 
                     (DataType::VarChar, ValueVec::String(values)) => {
@@ -171,7 +169,6 @@ impl Client {
                             }
                             expr.push_str(v.as_str());
                         }
-                        expr
                     }
 
                     _ => {
@@ -181,12 +178,12 @@ impl Client {
                         ));
                     }
                 }
+                expr.push(']');
+                expr
             }
 
             _ => options.filter.clone(),
         };
-        expr.push(')');
-
         Ok(expr)
     }
 
