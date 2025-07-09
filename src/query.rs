@@ -309,7 +309,11 @@ impl Client {
             .into_iter()
             .map(Into::into)
             .collect::<Vec<FieldColumn>>();
-        let raw_id = raw_data.ids.unwrap().id_field.unwrap();
+        let raw_id = raw_data
+            .ids
+            .ok_or(SuperError::Unexpected("no id for search".to_owned()))?
+            .id_field
+            .ok_or(SuperError::Unexpected("no id field for search".to_owned()))?;
 
         for k in raw_data.topks {
             let k = k as usize;
